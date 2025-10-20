@@ -3,6 +3,10 @@ import numpy as np
 # The generator for non-singular matrices.
 class MatrixGenerator:
     def __init__(self):
+        self.vector_distribution_params = {
+            'low': 0.0,
+            'high': 0.99,
+        }
 
         # Keep the lower triangular values small.
         self.lower_triangular_distribution_params = {
@@ -15,6 +19,7 @@ class MatrixGenerator:
             'low': 0.2,
             'high': 5.0,
         }
+
         self.round_to_int = False
 
     def generate_non_singular_lower_triangular(self, size):
@@ -30,10 +35,10 @@ class MatrixGenerator:
         for i in range(size):
             if abs(matrix[i, i]) < 1e-10:  
                 matrix[i, i] = 0.99
-        
+
         if self.round_to_int:
             matrix = np.round(matrix).astype(int)
-            
+
         return matrix
 
     def generate_non_singular_upper_triangular(self, size):
@@ -63,3 +68,15 @@ class MatrixGenerator:
         upper = self.generate_non_singular_upper_triangular(size)
         matrix = np.matmul(lower, upper)
         return matrix
+
+    def generate_vector(self, size):
+        vector = np.random.uniform(
+            self.vector_distribution_params['low'],
+            self.vector_distribution_params['high'],
+            size
+        )
+        
+        if self.round_to_int:
+            vector = np.round(vector).astype(int)
+            
+        return vector

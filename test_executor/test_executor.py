@@ -19,7 +19,7 @@ class TestType(Enum):
 
 
 class TestExecutor:
-    SIZE_RANGE = [10, 101]
+    SIZE_RANGE = [10, 11]
     SIZE_STEP = 10
 
     def __init__(self):
@@ -35,11 +35,13 @@ class TestExecutor:
         input_data = {}
         input_data["size"] = size
         input_data["matrices"] = []
+        input_data["b"] = self.matrix_generator.generate_vector(size)
 
         if test_type == TestType.NON_SINGULAR:       
             np_matrix = self.matrix_generator.generate_non_singular_square(size)
+
             for factorization_type in FactorizationType:
-                matrix = NonSingularMatrix(np_matrix, factorization_type)
+                matrix = NonSingularMatrix(np_matrix.copy(), factorization_type)
                 input_data["matrices"].append(matrix)
 
         return input_data

@@ -8,6 +8,9 @@ class FactorizationTest:
         result_data = {}
         result_data["size"] = input_data["size"]
         result_data["matrices"] = []
+        result_data["solutions"] = []
+        b = input_data["b"]
+        result_data["b"] = b
 
         # Factor each input matrix.
         # Each matrix contains a variable determining the type of factorization to perform.
@@ -16,5 +19,8 @@ class FactorizationTest:
             matrix.factorize()
             matrix.print()
             result_data["matrices"].append(matrix)
+            x = matrix.solve(b)
+            result_data["solutions"].append(x)
 
+        print(result_data["solutions"])
         return result_data
