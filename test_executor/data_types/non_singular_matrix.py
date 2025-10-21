@@ -36,14 +36,16 @@ class NonSingularMatrix:
             return self.remultiply_with_full_pivoting()
 
     def solve(self, b):
+        self.b = b
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
         if self.factorization_type == FactorizationType.NO_PIVOTING:
-            return self.solve_without_pivoting(b)
+            self.x = self.solve_without_pivoting(b)
         if self.factorization_type == FactorizationType.PARTIAL_PIVOTING:
-            return self.solve_with_partial_pivoting(b)
+            self.x = self.solve_with_partial_pivoting(b)
         if self.factorization_type == FactorizationType.FULL_PIVOTING:
-            return self.solve_with_full_pivoting(b)
+            self.x = self.solve_with_full_pivoting(b)
+        return self.x
 
     def solve_without_pivoting(self, b):
 
@@ -189,7 +191,7 @@ class NonSingularMatrix:
             for j in range(k + 1, self.size):
                 self.np_matrix[i, j] -= multiplier * self.np_matrix[k, j]
 
-    def compute_lu(self, LU_combined, size):
+    def compute_lu(self, LU_combined, size, use_absolute_value_for_multiplication: bool = False):
         if LU_combined.ndim != 2 or LU_combined.shape[0] != LU_combined.shape[1]:
             raise ValueError("LU must be a square array.")
         if LU_combined.shape[0] != size:
@@ -206,13 +208,18 @@ class NonSingularMatrix:
                 # Sum over strictly lower part of L.
                 for k in range(i):
                     if k <= j:
-                        total += LU_combined[i,k] * LU_combined[k,j]
+                        if use_absolute_value_for_multiplication:
+                            total += abs(LU_combined[i,k]) * abs(LU_combined[k,j])
+                        else:
+                            total += LU_combined[i,k] * LU_combined[k,j]
 
                 # Add unit diagonal of L times U[i,j].
                 if i <= j:
-                    total += LU_combined[i,j]
+                    if use_absolute_value_for_multiplication:
+                        total += abs(LU_combined[i,j])
+                    else:
+                        total += LU_combined[i,j]
                 M[i,j] = total
-
         return M
 
     def remultiply_without_pivoting(self):
@@ -264,6 +271,25 @@ class NonSingularMatrix:
                         original_col = k
                         break
                 self.reconstructed_np_array[i, j] = temp_matrix[i, original_col]
+
+    def get_relative_factorization_accuracy(self):
+        if not self.is_factored:
+            raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+        diff = self.np_matrix_copy - self.reconstructed_np_array
+        return np.linalg.norm(diff) / np.linalg.norm(self.np_matrix_copy)
+
+    def get_residual(self):
+        if not self.is_factored:
+            raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+        diff = self.b - np.matmul(self.np_matrix_copy, self.x)
+        print("Diff: ", diff)
+        return np.linalg.norm(diff) / np.linalg.norm(self.b)
+
+    def get_growth_factor(self):
+        if not self.is_factored:
+            raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+        LU = self.compute_lu(self.np_matrix, self.size, use_absolute_value_for_multiplication=True)
+        return np.linalg.norm(LU) / np.linalg.norm(self.np_matrix_copy)
 
     def print(self):
         print(f"Non-singular matrix size {self.size}:")

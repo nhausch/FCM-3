@@ -19,29 +19,34 @@ class TestType(Enum):
 
 
 class TestExecutor:
-    SIZE_RANGE = [10, 11]
+    SIZE_RANGE = [10, 101]
     SIZE_STEP = 10
 
     def __init__(self):
         self.matrix_generator = MatrixGenerator()
         self.factorization_test = FactorizationTest()
 
-    def execute(self, test_type: TestType, use_absolute_value_for_remultiplication: bool = False):
+    def execute(self, test_type: TestType):
+
+        # Execute the test for each size in the range.
         for size in range(self.SIZE_RANGE[0], self.SIZE_RANGE[1], self.SIZE_STEP):
             input_data = self.get_input_data(test_type, size)
-            self.factorization_test.run(input_data, use_absolute_value_for_remultiplication)
+            self.factorization_test.run(input_data)
 
+    # Generate the input data for the test.
+    # Three copies of the matrix are added, one for each factorization type.
     def get_input_data(self, test_type: TestType, size: int):
         input_data = {}
         input_data["size"] = size
         input_data["matrices"] = []
         input_data["b"] = self.matrix_generator.generate_vector(size)
 
+        # Generate the matrix depending on the test type.
         if test_type == TestType.NON_SINGULAR:       
             np_matrix = self.matrix_generator.generate_non_singular_square(size)
 
-            for factorization_type in FactorizationType:
-                matrix = NonSingularMatrix(np_matrix.copy(), factorization_type)
-                input_data["matrices"].append(matrix)
+        for factorization_type in FactorizationType:
+            matrix = NonSingularMatrix(np_matrix.copy(), factorization_type)
+            input_data["matrices"].append(matrix)
 
         return input_data
