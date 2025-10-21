@@ -220,6 +220,51 @@ class NonSingularMatrix:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
         self.reconstructed_np_array = self.compute_lu(self.np_matrix, self.size)
 
+    def remultiply_with_partial_pivoting(self):
+        if not self.is_factored:
+            raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+
+        LU = self.compute_lu(self.np_matrix, self.size)
+        self.reconstructed_np_array = np.zeros((self.size, self.size))
+
+        # Apply the inverse permutation to reconstruct A from PA = LU.
+        for i in range(self.size):
+            original_row = -1
+            for k in range(self.size):
+                if self.row_permutation_vector[k] == i:
+                    original_row = k
+                    break
+            for j in range(self.size):
+                self.reconstructed_np_array[i, j] = LU[original_row, j]
+
+    def remultiply_with_full_pivoting(self):
+        if not self.is_factored:
+            raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+
+        LU = self.compute_lu(self.np_matrix, self.size)
+        temp_matrix = np.zeros((self.size, self.size))
+        
+        # Apply the inverse permutation.
+        for i in range(self.size):
+            original_row = -1
+            for k in range(self.size):
+                if self.row_permutation_vector[k] == i:
+                    original_row = k
+                    break
+            for j in range(self.size):
+                temp_matrix[i, j] = LU[original_row, j]
+        
+        # Now apply the inverse column permutation to get the final result.
+        self.reconstructed_np_array = np.zeros((self.size, self.size))
+        for i in range(self.size):
+            for j in range(self.size):
+                original_col = -1
+                for k in range(self.size):
+                    if self.column_permutation_vector[k] == j:
+                        original_col = k
+                        break
+                self.reconstructed_np_array[i, j] = temp_matrix[i, original_col]
+
     def print(self):
         print(f"Non-singular matrix size {self.size}:")
         print(f"  Factorization Type: {self.factorization_type}")

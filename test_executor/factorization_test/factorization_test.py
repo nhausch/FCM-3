@@ -16,12 +16,11 @@ class FactorizationTest:
         # Factor each input matrix.
         # Each matrix contains a variable determining the type of factorization to perform.
         for matrix in input_data["matrices"]:
-            matrix.print()
             matrix.factorize()
-            matrix.print()
             result_data["matrices"].append(matrix)
             x = matrix.solve(b)
             result_data["solutions"].append(x)
+            matrix.remultiply()
 
-        print(result_data["solutions"])
+            print(f"{matrix.np_matrix_copy} ==> {matrix.reconstructed_np_array}")
         return result_data
