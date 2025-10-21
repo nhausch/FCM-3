@@ -19,7 +19,6 @@ class MatrixGenerator:
             'low': 0.2,
             'high': 5.0,
         }
-
         self.round_to_int = False
 
     def generate_non_singular_lower_triangular(self, size):

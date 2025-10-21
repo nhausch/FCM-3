@@ -26,10 +26,10 @@ class TestExecutor:
         self.matrix_generator = MatrixGenerator()
         self.factorization_test = FactorizationTest()
 
-    def execute(self, test_type: TestType):
+    def execute(self, test_type: TestType, use_absolute_value_for_remultiplication: bool = False):
         for size in range(self.SIZE_RANGE[0], self.SIZE_RANGE[1], self.SIZE_STEP):
             input_data = self.get_input_data(test_type, size)
-            self.factorization_test.run(input_data)
+            self.factorization_test.run(input_data, use_absolute_value_for_remultiplication)
 
     def get_input_data(self, test_type: TestType, size: int):
         input_data = {}

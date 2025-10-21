@@ -25,6 +25,16 @@ class NonSingularMatrix:
             self.perform_lu_factorization_with_full_pivoting()
         self.is_factored = True
 
+    def remultiply(self):
+        if not self.is_factored:
+            raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+        if self.factorization_type == FactorizationType.NO_PIVOTING:
+            return self.remultiply_without_pivoting()
+        if self.factorization_type == FactorizationType.PARTIAL_PIVOTING:
+            return self.remultiply_with_partial_pivoting()
+        if self.factorization_type == FactorizationType.FULL_PIVOTING:
+            return self.remultiply_with_full_pivoting()
+
     def solve(self, b):
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
@@ -178,6 +188,37 @@ class NonSingularMatrix:
             # Eliminate a_ik and update the rest of row i.
             for j in range(k + 1, self.size):
                 self.np_matrix[i, j] -= multiplier * self.np_matrix[k, j]
+
+    def compute_lu(self, LU_combined, size):
+        if LU_combined.ndim != 2 or LU_combined.shape[0] != LU_combined.shape[1]:
+            raise ValueError("LU must be a square array.")
+        if LU_combined.shape[0] != size:
+            raise ValueError(f"LU size mismatch: {LU_combined.shape[0]} != {size}")
+        
+        # Match the output type to the input matrix.
+        M = np.zeros((size, size), dtype=LU_combined.dtype)
+
+        # Compute the result matrix.
+        for i in range(size):
+            for j in range(size):
+                total = 0.0
+
+                # Sum over strictly lower part of L.
+                for k in range(i):
+                    if k <= j:
+                        total += LU_combined[i,k] * LU_combined[k,j]
+
+                # Add unit diagonal of L times U[i,j].
+                if i <= j:
+                    total += LU_combined[i,j]
+                M[i,j] = total
+
+        return M
+
+    def remultiply_without_pivoting(self):
+        if not self.is_factored:
+            raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+        self.reconstructed_np_array = self.compute_lu(self.np_matrix, self.size)
 
     def print(self):
         print(f"Non-singular matrix size {self.size}:")
