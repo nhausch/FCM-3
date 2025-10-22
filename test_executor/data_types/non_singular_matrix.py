@@ -345,42 +345,15 @@ class NonSingularMatrix:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
         
         LU = self.compute_lu(self.np_matrix, self.size, use_absolute_value_for_multiplication=True)
-        
         return np.linalg.norm(LU) / np.linalg.norm(self.np_matrix_copy)
-        
-        # elif self.factorization_type == FactorizationType.PARTIAL_PIVOTING:
-        #     PA = np.zeros((self.size, self.size))
-        #     for i in range(self.size):
-        #         original_row = self.row_permutation_vector[i]
-        #         PA[i, :] = self.np_matrix_copy[original_row, :]
-        #     return np.linalg.norm(LU) / np.linalg.norm(PA)
-        
-        # elif self.factorization_type == FactorizationType.FULL_PIVOTING:
-        #     # Full pivoting: compare against PAQ
-        #     # row_permutation_vector[i] tells us which original row is now in position i
-        #     PA = np.zeros((self.size, self.size))
-        #     for i in range(self.size):
-        #         original_row = self.row_permutation_vector[i]
-        #         PA[i, :] = self.np_matrix_copy[original_row, :]
-            
-        #     # column_permutation_vector[j] tells us which original column is now in position j
-        #     PAQ = np.zeros((self.size, self.size))
-        #     for i in range(self.size):
-        #         for j in range(self.size):
-        #             original_col = self.column_permutation_vector[j]
-        #             PAQ[i, j] = PA[i, original_col]
-            
-        #     return np.linalg.norm(LU) / np.linalg.norm(PAQ)
 
     def print_debug_info(self):
-        """Print debugging information about swaps and condition number"""
-        print(f"\n=== DEBUG INFO for {self.factorization_type.value.upper()} ===")
+        print(f"\nDEBUG INFO for {self.factorization_type.value.upper()}")
         print(f"Matrix size: {self.size}")
         print(f"Condition number: {self.condition_number:.2e}")
         print(f"Number of swaps: {self.swap_count}")
         
         if self.swap_details:
-            # Calculate average improvement ratio
             avg_improvement = np.mean([swap['improvement_ratio'] for swap in self.swap_details])
             min_improvement = min([swap['improvement_ratio'] for swap in self.swap_details])
             max_improvement = max([swap['improvement_ratio'] for swap in self.swap_details])
@@ -388,7 +361,7 @@ class NonSingularMatrix:
             print(f"Average improvement ratio: {avg_improvement:.2f}")
             print(f"Min improvement ratio: {min_improvement:.2f}")
             print(f"Max improvement ratio: {max_improvement:.2f}")
-            
+
             if self.print_swap_details:
                 print("Swap details:")
                 for swap in self.swap_details:

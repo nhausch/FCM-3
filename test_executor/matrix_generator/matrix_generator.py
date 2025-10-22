@@ -73,7 +73,7 @@ class MatrixGenerator:
         # Add diagonal dominance for well-conditioned matrices.
         if well_conditioned:
             for i in range(size):
-                matrix[i, i] += size
+                matrix[i, i] += 0.1
         return matrix
 
     def generate_vector(self, size):
