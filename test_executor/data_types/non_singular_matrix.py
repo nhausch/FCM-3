@@ -14,9 +14,23 @@ class NonSingularMatrix:
         self.size = np_matrix.shape[0]
         self.factorization_type = factorization_type
         self.is_factored = False
+        
+        # Debugging variables
+        self.swap_count = 0
+        self.condition_number = None
+        self.swap_details = []
+        self.print_swap_details = False
 
     def factorize(self):
         self.np_matrix_copy = self.np_matrix.copy()
+        
+        # Calculate condition number for debugging
+        self.condition_number = np.linalg.cond(self.np_matrix)
+        
+        # Reset debugging variables
+        self.swap_count = 0
+        self.swap_details = []
+        
         if self.factorization_type == FactorizationType.NO_PIVOTING:
             self.perform_lu_factorization()
         if self.factorization_type == FactorizationType.PARTIAL_PIVOTING:
@@ -122,8 +136,23 @@ class NonSingularMatrix:
                     max_value = abs(self.np_matrix[i, k])
                     max_row = i
             
+            # Check if swap is beneficial
+            current_pivot = abs(self.np_matrix[k, k])
+            potential_pivot = abs(self.np_matrix[max_row, k]) if max_row != k else current_pivot
+            improvement_ratio = potential_pivot / current_pivot if current_pivot > 0 else float('inf')
+            
             # Swap rows to bring the largest element to position (k, k) if needed.
             if max_row != k:
+                self.swap_count += 1
+                self.swap_details.append({
+                    'step': k,
+                    'from_row': k,
+                    'to_row': max_row,
+                    'current_pivot': current_pivot,
+                    'new_pivot': potential_pivot,
+                    'improvement_ratio': improvement_ratio
+                })
+                
                 self.np_matrix[[k, max_row], :] = self.np_matrix[[max_row, k], :]
 
                 # Update the permutation vector by swapping entries.
@@ -153,8 +182,24 @@ class NonSingularMatrix:
                         max_row = i
                         max_col = j
             
-            # Swap rows to bring the largest element to position (k, k) if needed.
+            # Check if swaps are beneficial
+            current_pivot = abs(self.np_matrix[k, k])
+            potential_pivot = max_value
+            improvement_ratio = potential_pivot / current_pivot if current_pivot > 0 else float('inf')
+            
+            # Swap rows if needed
             if max_row != k:
+                self.swap_count += 1
+                self.swap_details.append({
+                    'step': k,
+                    'type': 'row_swap',
+                    'from_row': k,
+                    'to_row': max_row,
+                    'current_pivot': current_pivot,
+                    'new_pivot': potential_pivot,
+                    'improvement_ratio': improvement_ratio
+                })
+                
                 self.np_matrix[[k, max_row], :] = self.np_matrix[[max_row, k], :]
 
                 # Update the row permutation vector by swapping entries.
@@ -163,6 +208,17 @@ class NonSingularMatrix:
             
             # Swap columns to bring the largest element to position (k, k) if needed.
             if max_col != k:
+                self.swap_count += 1
+                self.swap_details.append({
+                    'step': k,
+                    'type': 'column_swap',
+                    'from_col': k,
+                    'to_col': max_col,
+                    'current_pivot': current_pivot,
+                    'new_pivot': potential_pivot,
+                    'improvement_ratio': improvement_ratio
+                })
+                
                 self.np_matrix[:, [k, max_col]] = self.np_matrix[:, [max_col, k]]
 
                 # Update the column permutation vector by swapping entries.
@@ -282,14 +338,68 @@ class NonSingularMatrix:
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
         diff = self.b - np.matmul(self.np_matrix_copy, self.x)
-        print("Diff: ", diff)
         return np.linalg.norm(diff) / np.linalg.norm(self.b)
 
     def get_growth_factor(self):
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
+        
         LU = self.compute_lu(self.np_matrix, self.size, use_absolute_value_for_multiplication=True)
+        
         return np.linalg.norm(LU) / np.linalg.norm(self.np_matrix_copy)
+        
+        # elif self.factorization_type == FactorizationType.PARTIAL_PIVOTING:
+        #     PA = np.zeros((self.size, self.size))
+        #     for i in range(self.size):
+        #         original_row = self.row_permutation_vector[i]
+        #         PA[i, :] = self.np_matrix_copy[original_row, :]
+        #     return np.linalg.norm(LU) / np.linalg.norm(PA)
+        
+        # elif self.factorization_type == FactorizationType.FULL_PIVOTING:
+        #     # Full pivoting: compare against PAQ
+        #     # row_permutation_vector[i] tells us which original row is now in position i
+        #     PA = np.zeros((self.size, self.size))
+        #     for i in range(self.size):
+        #         original_row = self.row_permutation_vector[i]
+        #         PA[i, :] = self.np_matrix_copy[original_row, :]
+            
+        #     # column_permutation_vector[j] tells us which original column is now in position j
+        #     PAQ = np.zeros((self.size, self.size))
+        #     for i in range(self.size):
+        #         for j in range(self.size):
+        #             original_col = self.column_permutation_vector[j]
+        #             PAQ[i, j] = PA[i, original_col]
+            
+        #     return np.linalg.norm(LU) / np.linalg.norm(PAQ)
+
+    def print_debug_info(self):
+        """Print debugging information about swaps and condition number"""
+        print(f"\n=== DEBUG INFO for {self.factorization_type.value.upper()} ===")
+        print(f"Matrix size: {self.size}")
+        print(f"Condition number: {self.condition_number:.2e}")
+        print(f"Number of swaps: {self.swap_count}")
+        
+        if self.swap_details:
+            # Calculate average improvement ratio
+            avg_improvement = np.mean([swap['improvement_ratio'] for swap in self.swap_details])
+            min_improvement = min([swap['improvement_ratio'] for swap in self.swap_details])
+            max_improvement = max([swap['improvement_ratio'] for swap in self.swap_details])
+            
+            print(f"Average improvement ratio: {avg_improvement:.2f}")
+            print(f"Min improvement ratio: {min_improvement:.2f}")
+            print(f"Max improvement ratio: {max_improvement:.2f}")
+            
+            if self.print_swap_details:
+                print("Swap details:")
+                for swap in self.swap_details:
+                    if 'type' in swap:  # Full pivoting
+                        print(f"  Step {swap['step']}: {swap['type']} from {swap.get('from_row', swap.get('from_col'))} to {swap.get('to_row', swap.get('to_col'))}")
+                        print(f"    Improvement ratio: {swap['improvement_ratio']:.2f}")
+                    else:  # Partial pivoting
+                        print(f"  Step {swap['step']}: Row swap from {swap['from_row']} to {swap['to_row']}")
+                        print(f"    Improvement ratio: {swap['improvement_ratio']:.2f}")
+        else:
+            print("No swaps performed")
 
     def print(self):
         print(f"Non-singular matrix size {self.size}:")

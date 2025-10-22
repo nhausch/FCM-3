@@ -21,6 +21,7 @@ class FactorizationTest:
 
             # Factor the matrix, solve for x, and remultiply the matrix.
             matrix.factorize()
+            matrix.print_debug_info()
             x = matrix.solve(b)
             matrix.remultiply()
 
@@ -31,10 +32,10 @@ class FactorizationTest:
             result_data["relative_factorization_accuracy"].append(relative_factorization_accuracy)
             result_data["residual"].append(residual)
             result_data["growth_factor"].append(growth_factor)
-            print("Size: ", input_data["size"])
-            print("Growth factor: ", growth_factor)
-            print("Relative factorization accuracy: ", relative_factorization_accuracy)
-            print("Residual: ", residual)
-            print("--------------------------------")
+            # print("Size: ", input_data["size"])
+            # print("Growth factor: ", growth_factor)
+            # print("Relative factorization accuracy: ", relative_factorization_accuracy)
+            # print("Residual: ", residual)
+            # print("--------------------------------")
 
         return result_data

@@ -3,6 +3,7 @@ from enum import Enum
 from test_executor.data_types.non_singular_matrix import NonSingularMatrix, FactorizationType
 from test_executor.matrix_generator.matrix_generator import MatrixGenerator
 from test_executor.factorization_test.factorization_test import FactorizationTest
+from test_executor.result_plotter.result_plotter import ResultPlotter
 
 
 class TestType(Enum):
@@ -25,13 +26,22 @@ class TestExecutor:
     def __init__(self):
         self.matrix_generator = MatrixGenerator()
         self.factorization_test = FactorizationTest()
+        self.result_plotter = ResultPlotter()
 
     def execute(self, test_type: TestType):
+        results = []
 
         # Execute the test for each size in the range.
         for size in range(self.SIZE_RANGE[0], self.SIZE_RANGE[1], self.SIZE_STEP):
             input_data = self.get_input_data(test_type, size)
-            self.factorization_test.run(input_data)
+            result_data = self.factorization_test.run(input_data)
+            results.append(result_data)
+
+
+        # for result in results:
+        #     print(result)
+
+        self.result_plotter.plot(results)
 
     # Generate the input data for the test.
     # Three copies of the matrix are added, one for each factorization type.
@@ -46,6 +56,7 @@ class TestExecutor:
             np_matrix = self.matrix_generator.generate_non_singular_square(size)
 
         for factorization_type in FactorizationType:
+            print("Factorization type: ", factorization_type)
             matrix = NonSingularMatrix(np_matrix.copy(), factorization_type)
             input_data["matrices"].append(matrix)
 
