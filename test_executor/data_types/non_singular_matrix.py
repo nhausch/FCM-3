@@ -17,20 +17,12 @@ class NonSingularMatrix:
         
         # Debugging variables
         self.swap_count = 0
-        self.condition_number = None
+        self.condition_number = np.linalg.cond(self.np_matrix)
         self.swap_details = []
         self.print_swap_details = False
 
     def factorize(self):
         self.np_matrix_copy = self.np_matrix.copy()
-        
-        # Calculate condition number for debugging
-        self.condition_number = np.linalg.cond(self.np_matrix)
-        
-        # Reset debugging variables
-        self.swap_count = 0
-        self.swap_details = []
-        
         if self.factorization_type == FactorizationType.NO_PIVOTING:
             self.perform_lu_factorization()
         if self.factorization_type == FactorizationType.PARTIAL_PIVOTING:
@@ -346,6 +338,12 @@ class NonSingularMatrix:
         
         LU = self.compute_lu(self.np_matrix, self.size, use_absolute_value_for_multiplication=True)
         return np.linalg.norm(LU) / np.linalg.norm(self.np_matrix_copy)
+    
+    def get_condition_number(self):
+        return self.condition_number
+
+    def get_swap_count(self):
+        return self.swap_count
 
     def print_debug_info(self):
         print(f"\nDEBUG INFO for {self.factorization_type.value.upper()}")

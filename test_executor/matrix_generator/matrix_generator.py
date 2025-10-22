@@ -85,3 +85,27 @@ class MatrixGenerator:
         if self.round_to_int:
             vector = np.round(vector).astype(int)   
         return vector
+
+    def generate_diagonal_increasing_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            matrix[i, i] = i + 1
+        return matrix
+
+    def generate_diagonal_decreasing_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            matrix[i, i] = size - i
+        return matrix
+    
+    def generate_anti_diagonal_increasing_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            matrix[i, size - i - 1] = i + 1
+        return matrix
+
+    def generate_anti_diagonal_decreasing_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            matrix[i, size - i - 1] = size - i
+        return matrix
