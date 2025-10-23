@@ -1,4 +1,4 @@
-
+import numpy as np
 
 class FactorizationTest:
     def __init__(self):
@@ -17,6 +17,10 @@ class FactorizationTest:
         result_data["condition_number"] = []
         result_data["swap_count"] = []
 
+        print("Input matrix:")
+        with np.printoptions(precision=2, suppress=True, linewidth=100):
+            print(input_data["matrices"][0].np_matrix)
+
         # Process each input matrix and store the results.
         # Each matrix contains a variable determining the type of factorization to perform.
         for matrix in input_data["matrices"]:
@@ -24,6 +28,9 @@ class FactorizationTest:
                 # Factor the matrix, solve for x, and remultiply the matrix.
                 matrix.factorize()
                 x = matrix.solve(b)
+                print("Factorized matrix:")
+                with np.printoptions(precision=2, suppress=True, linewidth=100):
+                    print(matrix.np_matrix)
                 matrix.remultiply()
 
                 # Compute the relative accuracy of the factorization and the residual.
@@ -32,6 +39,7 @@ class FactorizationTest:
                 growth_factor = matrix.get_growth_factor()
                 condition_number = matrix.get_condition_number()
                 swap_count = matrix.get_swap_count()
+
                 result_data["relative_factorization_accuracy"].append(relative_factorization_accuracy)
                 result_data["residual"].append(residual)
                 result_data["growth_factor"].append(growth_factor)

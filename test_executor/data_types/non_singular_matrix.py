@@ -254,7 +254,7 @@ class NonSingularMatrix:
             for j in range(k + 1, self.size):
                 self.np_matrix[i, j] -= multiplier * self.np_matrix[k, j]
 
-    def compute_lu(self, LU_combined, size, use_absolute_value_for_multiplication: bool = False):
+    def multiply_lu(self, LU_combined, size, use_absolute_value_for_multiplication: bool = False):
         if LU_combined.ndim != 2 or LU_combined.shape[0] != LU_combined.shape[1]:
             raise ValueError("LU must be a square array.")
         if LU_combined.shape[0] != size:
@@ -288,13 +288,13 @@ class NonSingularMatrix:
     def remultiply_without_pivoting(self):
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
-        self.reconstructed_np_array = self.compute_lu(self.np_matrix, self.size)
+        self.reconstructed_np_array = self.multiply_lu(self.np_matrix, self.size)
 
     def remultiply_with_partial_pivoting(self):
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
 
-        LU = self.compute_lu(self.np_matrix, self.size)
+        LU = self.multiply_lu(self.np_matrix, self.size)
         self.reconstructed_np_array = np.zeros((self.size, self.size))
 
         # Apply the inverse permutation to reconstruct A from PA = LU.
@@ -311,7 +311,7 @@ class NonSingularMatrix:
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
 
-        LU = self.compute_lu(self.np_matrix, self.size)
+        LU = self.multiply_lu(self.np_matrix, self.size)
         temp_matrix = np.zeros((self.size, self.size))
         
         # Apply the inverse permutation.
@@ -351,7 +351,7 @@ class NonSingularMatrix:
         if not self.is_factored:
             raise ValueError("Matrix is not factored. Please factorize the matrix first.")
         
-        LU = self.compute_lu(self.np_matrix, self.size, use_absolute_value_for_multiplication=True)
+        LU = self.multiply_lu(self.np_matrix, self.size, use_absolute_value_for_multiplication=True)
         return np.linalg.norm(LU) / np.linalg.norm(self.np_matrix_copy)
     
     def get_condition_number(self):

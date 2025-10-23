@@ -109,3 +109,32 @@ class MatrixGenerator:
         for i in range(size):
             matrix[i, size - i - 1] = size - i
         return matrix
+
+    def generate_x_pattern_diagonally_dominant_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            matrix[i, i] = i + 1
+            matrix[i, size - i - 1] = 0.5 * i + 1
+        return matrix
+
+    def generate_x_pattern_anti_diagonally_dominant_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            matrix[i, i] = size - i
+            matrix[i, size - i - 1] = 4 * (size - i)
+        return matrix
+
+    def generate_unit_lower_triangular_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            for j in range(i + 1):
+                matrix[i, j] = np.random.uniform(
+                    self.distribution_params['low'] + 0.5,
+                    self.distribution_params['high'] + 0.5
+                )
+
+        # Ensure non-singularity by making sure all diagonal elements are not close to zero.
+        for i in range(size):
+            matrix[i, i] = 1.0
+
+        return matrix

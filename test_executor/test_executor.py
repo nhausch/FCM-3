@@ -12,7 +12,9 @@ class TestType(Enum):
     DIAGONAL_DECREASING = "diagonal_decreasing"
     ANTI_DIAGONAL_INCREASING = "anti_diagonal_increasing"
     ANTI_DIAGONAL_DECREASING = "anti_diagonal_decreasing"
-    X_PATTERN = "x_pattern"
+    X_PATTERN_DIAGONALLY_DOMINANT = "x_pattern_diagonally_dominant"
+    X_PATTERN_ANTI_DIAGONALLY_DOMINANT = "x_pattern_anti_diagonally_dominant"
+    X_PATTERN_DECREASING = "x_pattern_decreasing"
     UNIT_LOWER_TRIANGULAR = "unit_lower_triangular"
     LOWER_TRIANGULAR_SMALL_DIAGONAL = "lower_triangular_small_diagonal"
     TRIDIAGONAL = "tridiagonal"
@@ -22,7 +24,7 @@ class TestType(Enum):
 
 
 class TestExecutor:
-    SIZE_RANGE = [10, 101]
+    SIZE_RANGE = [10, 11]
     SIZE_STEP = 10
 
     def __init__(self):
@@ -60,6 +62,12 @@ class TestExecutor:
             np_matrix = self.matrix_generator.generate_anti_diagonal_increasing_matrix(size)
         elif test_type == TestType.ANTI_DIAGONAL_DECREASING:
             np_matrix = self.matrix_generator.generate_anti_diagonal_decreasing_matrix(size)
+        elif test_type == TestType.X_PATTERN_DIAGONALLY_DOMINANT:
+            np_matrix = self.matrix_generator.generate_x_pattern_diagonally_dominant_matrix(size)
+        elif test_type == TestType.X_PATTERN_ANTI_DIAGONALLY_DOMINANT:
+            np_matrix = self.matrix_generator.generate_x_pattern_anti_diagonally_dominant_matrix(size)
+        elif test_type == TestType.UNIT_LOWER_TRIANGULAR:
+            np_matrix = self.matrix_generator.generate_unit_lower_triangular_matrix(size)
         else:
             raise ValueError(f"Unknown test type: {test_type}")
 
