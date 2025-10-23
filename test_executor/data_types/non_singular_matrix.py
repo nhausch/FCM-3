@@ -110,7 +110,12 @@ class NonSingularMatrix:
 
         # Perform Gaussian elimination column by column.
         for k in range(self.size - 1):
-            self._perform_gaussian_elimination_step(k)
+            try:
+                self._perform_gaussian_elimination_step(k)
+            except ValueError as e:
+                print(f"Matrix cannot be factorized without pivoting: {e}")
+                self.np_matrix = self.np_matrix_copy
+                raise
 
     def perform_lu_factorization_with_partial_pivoting(self):
 
@@ -152,7 +157,12 @@ class NonSingularMatrix:
                     self.row_permutation_vector[max_row], self.row_permutation_vector[k]
 
             # Perform the elimination step.
-            self._perform_gaussian_elimination_step(k)
+            try:
+                self._perform_gaussian_elimination_step(k)
+            except ValueError as e:
+                print(f"Matrix cannot be factorized with partial pivoting: {e}")
+                self.np_matrix = self.np_matrix_copy
+                raise
         
     def perform_lu_factorization_with_full_pivoting(self):
 
@@ -218,7 +228,12 @@ class NonSingularMatrix:
                     self.column_permutation_vector[max_col], self.column_permutation_vector[k]
 
             # Perform the elimination step.
-            self._perform_gaussian_elimination_step(k)
+            try:
+                self._perform_gaussian_elimination_step(k)
+            except ValueError as e:
+                print(f"Matrix cannot be factorized with full pivoting: {e}")
+                self.np_matrix = self.np_matrix_copy
+                raise
 
     def _perform_gaussian_elimination_step(self, k):
 

@@ -20,7 +20,12 @@ class ResultPlotter:
         # Plot relative factorization accuracy.
         for i in range(3):
             y_values = [acc[i] for acc in relative_accuracy]
-            ax1.semilogy(sizes, y_values, color=colors[i], marker=markers[i], 
+            # Filter out NaN values
+            valid_indices = [j for j, val in enumerate(y_values) if not np.isnan(val)]
+            if valid_indices:
+                valid_sizes = [sizes[j] for j in valid_indices]
+                valid_y_values = [y_values[j] for j in valid_indices]
+                ax1.plot(valid_sizes, valid_y_values, color=colors[i], marker=markers[i], 
                         linestyle=linestyles[i], label=strategies[i], linewidth=2, markersize=6,
                         alpha=0.8)
         ax1.set_ylabel('Relative Factorization Accuracy')
@@ -30,7 +35,12 @@ class ResultPlotter:
         # Plot residual.
         for i in range(3):
             y_values = [res[i] for res in residuals]
-            ax2.semilogy(sizes, y_values, color=colors[i], marker=markers[i], 
+            # Filter out NaN values
+            valid_indices = [j for j, val in enumerate(y_values) if not np.isnan(val)]
+            if valid_indices:
+                valid_sizes = [sizes[j] for j in valid_indices]
+                valid_y_values = [y_values[j] for j in valid_indices]
+                ax2.plot(valid_sizes, valid_y_values, color=colors[i], marker=markers[i], 
                         linestyle=linestyles[i], label=strategies[i], linewidth=2, markersize=6,
                         alpha=0.8)
         ax2.set_ylabel('Residual')
@@ -40,7 +50,12 @@ class ResultPlotter:
         # Plot growth factor.
         for i in range(3):
             y_values = [gf[i] for gf in growth_factors]
-            ax3.semilogy(sizes, y_values, color=colors[i], marker=markers[i], 
+            # Filter out NaN values
+            valid_indices = [j for j, val in enumerate(y_values) if not np.isnan(val)]
+            if valid_indices:
+                valid_sizes = [sizes[j] for j in valid_indices]
+                valid_y_values = [y_values[j] for j in valid_indices]
+                ax3.plot(valid_sizes, valid_y_values, color=colors[i], marker=markers[i], 
                         linestyle=linestyles[i], label=strategies[i], linewidth=2, markersize=6,
                         alpha=0.8)
         ax3.set_xlabel('Matrix Size')
