@@ -21,4 +21,5 @@ if __name__ == "__main__":
     main()
 
 # Should we test with well conditioned and ill conditioned matrices?
-# Remultiplication strategy.
+
+# Multiple runs for each size.

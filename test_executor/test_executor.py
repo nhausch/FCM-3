@@ -16,11 +16,11 @@ class TestType(Enum):
     X_PATTERN_ANTI_DIAGONALLY_DOMINANT = "x_pattern_anti_diagonally_dominant"
     X_PATTERN_DECREASING = "x_pattern_decreasing"
     UNIT_LOWER_TRIANGULAR = "unit_lower_triangular"
-    LOWER_TRIANGULAR_SMALL_DIAGONAL = "lower_triangular_small_diagonal"
+    LOWER_TRIANGULAR = "lower_triangular"
     TRIDIAGONAL = "tridiagonal"
     TRIDIAGONAL_DIAGONALLY_DOMINANT = "tridiagonal_diagonally_dominant"
     SPECIAL_ONES_CASE = "special_ones_case"
-    LOWER_LOWER_PRODUCT = "non_singular_square"
+    LOWER_LOWER_PRODUCT = "lower_lower_product"
 
 
 class TestExecutor:
@@ -68,6 +68,16 @@ class TestExecutor:
             np_matrix = self.matrix_generator.generate_x_pattern_anti_diagonally_dominant_matrix(size)
         elif test_type == TestType.UNIT_LOWER_TRIANGULAR:
             np_matrix = self.matrix_generator.generate_unit_lower_triangular_matrix(size)
+        elif test_type == TestType.LOWER_TRIANGULAR:
+            np_matrix = self.matrix_generator.generate_positive_lower_triangular_matrix(size)
+        elif test_type == TestType.TRIDIAGONAL:
+            np_matrix = self.matrix_generator.generate_tridiagonal_matrix(size)
+        elif test_type == TestType.TRIDIAGONAL_DIAGONALLY_DOMINANT:
+            np_matrix = self.matrix_generator.generate_tridiagonal_matrix(size, diagonally_dominant=True)
+        elif test_type == TestType.SPECIAL_ONES_CASE:
+            np_matrix = self.matrix_generator.generate_special_ones_case_matrix(size)
+        elif test_type == TestType.LOWER_LOWER_PRODUCT:
+            np_matrix = self.matrix_generator.generate_lower_lower_product_matrix(size)
         else:
             raise ValueError(f"Unknown test type: {test_type}")
 

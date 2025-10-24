@@ -11,6 +11,10 @@ class MatrixGenerator:
             'low': -0.5,
             'high': 0.5,
         }
+        self.positive_distribution_params = {
+            'low': 0.1,
+            'high': 5.0,
+        }
         self.round_to_int = False
 
     def generate_non_singular_lower_triangular(self, size, well_conditioned: bool = True):
@@ -138,3 +142,84 @@ class MatrixGenerator:
             matrix[i, i] = 1.0
 
         return matrix
+
+    def generate_positive_lower_triangular_matrix(self, size, diagonal_min=1.1, diagonal_max=5.0, off_diagonal_min=1.1, off_diagonal_max=10.0):
+        matrix = np.zeros((size, size))
+        
+        for i in range(size):
+            for j in range(i + 1):
+                if i == j:
+                    matrix[i, j] = np.random.uniform(diagonal_min, diagonal_max)
+                else:
+                    matrix[i, j] = np.random.uniform(off_diagonal_min, off_diagonal_max)
+        
+        if self.round_to_int:
+            matrix = np.round(matrix).astype(int)
+            
+        return matrix
+
+    def generate_tridiagonal_matrix(self, size, diagonally_dominant: bool = False):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            matrix[i, i] = np.random.uniform(
+                self.positive_distribution_params['low'],
+                self.positive_distribution_params['high']
+            )
+            if diagonally_dominant:
+                matrix[i, i] += self.positive_distribution_params['high']
+            if i > 0:
+                matrix[i, i - 1] = np.random.uniform(
+                    self.positive_distribution_params['low'],
+                    self.positive_distribution_params['high']
+                )
+            if i < size - 1:
+                matrix[i, i + 1] = np.random.uniform(
+                    self.positive_distribution_params['low'],
+                    self.positive_distribution_params['high']
+                )
+        
+        if self.round_to_int:
+            matrix = np.round(matrix).astype(int)
+            
+        return matrix
+
+    def generate_special_ones_case_matrix(self, size):
+        matrix = np.zeros((size, size))
+        
+        # Fill in the values in the following structure.
+        # [[ 1,  0,  0,  1],
+        #  [-1,  1,  0,  1], 
+        #  [-1, -1,  1,  1],
+        #  [-1, -1, -1,  1]]
+        for i in range(size):
+            for j in range(size):
+                if i == j:
+                    matrix[i, j] = 1
+                elif j == size - 1:
+                    matrix[i, j] = 1
+                elif i > j:
+                    matrix[i, j] = -1
+        
+        return matrix
+
+    def generate_lower_lower_product_matrix(self, size):
+        lower_triangular = self.generate_lower_triangular_matrix(size)
+        lower_triangular_product = np.matmul(lower_triangular, lower_triangular.T)
+        return lower_triangular_product
+
+    def generate_lower_triangular_matrix(self, size):
+        matrix = np.zeros((size, size))
+        for i in range(size):
+            for j in range(i + 1):
+                if i == j:
+                    matrix[i, j] =                 matrix[i, j] = np.random.uniform(
+                        self.positive_distribution_params['low'],
+                        self.positive_distribution_params['high']
+                    )
+                else:
+                    matrix[i, j] = np.random.uniform(
+                        self.distribution_params['low'],
+                        self.distribution_params['high']
+                    )
+        return matrix
+
