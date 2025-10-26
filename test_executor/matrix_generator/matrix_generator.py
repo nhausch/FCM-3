@@ -16,8 +16,9 @@ class MatrixGenerator:
             'high': 5.0,
         }
         self.round_to_int = False
+        self.use_single_precision = True
 
-    def generate_non_singular_lower_triangular(self, size, well_conditioned: bool = True):
+    def generate_non_singular_unit_lower_triangular(self, size, well_conditioned: bool = True):
         matrix = np.zeros((size, size))
         for i in range(size):
             for j in range(i + 1):
@@ -28,14 +29,13 @@ class MatrixGenerator:
                     )
                 else:
                     matrix[i, j] = np.random.uniform(
-                        self.distribution_params['low'] + 0.5,
-                        self.distribution_params['high'] + 0.5
+                        self.positive_distribution_params['low'],
+                        self.distribution_params['high']
                     )
 
         # Ensure non-singularity by making sure all diagonal elements are not close to zero.
         for i in range(size):
-            if abs(matrix[i, i]) < 1e-10:  
-                matrix[i, i] = 0.5
+            matrix[i, i] = 1.0
 
         if self.round_to_int:
             matrix = np.round(matrix).astype(int)
@@ -52,14 +52,17 @@ class MatrixGenerator:
                     )
                 else:
                     matrix[i, j] = np.random.uniform(
-                        self.distribution_params['low'] + 0.5,
-                        self.distribution_params['high'] + 0.5
+                        self.positive_distribution_params['low'],
+                        self.positive_distribution_params['high']
                     )
 
         # Ensure non-singularity by making sure all diagonal elements are not close to zero.
         for i in range(size):
             if abs(matrix[i, i]) < 1e-10:
-                matrix[i, i] = 0.5
+                matrix[i, i] = np.random.uniform(
+                    self.positive_distribution_params['low'] + 1.0,
+                    self.positive_distribution_params['high']
+                )
         
         if self.round_to_int:
             matrix = np.round(matrix).astype(int)
@@ -70,7 +73,7 @@ class MatrixGenerator:
 
         # Generate a non-singular matrix by multiplying a lower triangular matrix by an 
         # upper triangular matrix.
-        lower = self.generate_non_singular_lower_triangular(size, well_conditioned)
+        lower = self.generate_non_singular_unit_lower_triangular(size, well_conditioned)
         upper = self.generate_non_singular_upper_triangular(size, well_conditioned)
         matrix = np.matmul(lower, upper)
 
@@ -78,6 +81,9 @@ class MatrixGenerator:
         if well_conditioned:
             for i in range(size):
                 matrix[i, i] += 0.1
+
+        if self.use_single_precision:
+            matrix = matrix.astype(np.float32)
         return matrix
 
     def generate_vector(self, size):
@@ -99,19 +105,19 @@ class MatrixGenerator:
     def generate_diagonal_decreasing_matrix(self, size):
         matrix = np.zeros((size, size))
         for i in range(size):
-            matrix[i, i] = size - i
+            matrix[i, i] = size - 1
         return matrix
     
     def generate_anti_diagonal_increasing_matrix(self, size):
         matrix = np.zeros((size, size))
         for i in range(size):
-            matrix[i, size - i - 1] = i + 1
+            matrix[i, size - i - 1] = size - i
         return matrix
 
     def generate_anti_diagonal_decreasing_matrix(self, size):
         matrix = np.zeros((size, size))
         for i in range(size):
-            matrix[i, size - i - 1] = size - i
+            matrix[i, size - i - 1] = i + 1
         return matrix
 
     def generate_x_pattern_diagonally_dominant_matrix(self, size):
@@ -143,7 +149,7 @@ class MatrixGenerator:
 
         return matrix
 
-    def generate_positive_lower_triangular_matrix(self, size, diagonal_min=1.1, diagonal_max=5.0, off_diagonal_min=1.1, off_diagonal_max=10.0):
+    def generate_positive_lower_triangular_matrix(self, size, diagonal_min=1.1, diagonal_max=2.0, off_diagonal_min=1.1, off_diagonal_max=10.0):
         matrix = np.zeros((size, size))
         
         for i in range(size):
@@ -162,20 +168,20 @@ class MatrixGenerator:
         matrix = np.zeros((size, size))
         for i in range(size):
             matrix[i, i] = np.random.uniform(
-                self.positive_distribution_params['low'],
-                self.positive_distribution_params['high']
+                self.distribution_params['low'],
+                self.distribution_params['high']
             )
             if diagonally_dominant:
-                matrix[i, i] += self.positive_distribution_params['high']
+                matrix[i, i] += (self.distribution_params['high'] - self.distribution_params['low'])
             if i > 0:
                 matrix[i, i - 1] = np.random.uniform(
-                    self.positive_distribution_params['low'],
-                    self.positive_distribution_params['high']
+                    self.distribution_params['low'],
+                    self.distribution_params['high']
                 )
             if i < size - 1:
                 matrix[i, i + 1] = np.random.uniform(
-                    self.positive_distribution_params['low'],
-                    self.positive_distribution_params['high']
+                    self.distribution_params['low'],
+                    self.distribution_params['high']
                 )
         
         if self.round_to_int:
@@ -212,7 +218,7 @@ class MatrixGenerator:
         for i in range(size):
             for j in range(i + 1):
                 if i == j:
-                    matrix[i, j] =                 matrix[i, j] = np.random.uniform(
+                    matrix[i, j] = np.random.uniform(
                         self.positive_distribution_params['low'],
                         self.positive_distribution_params['high']
                     )

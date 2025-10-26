@@ -191,6 +191,7 @@ class NonSingularMatrix:
             
             # Swap rows if needed
             if max_row != k:
+                # print(f"Swapping rows {k} and {max_row} {self.swap_count}")
                 self.swap_count += 1
                 self.swap_details.append({
                     'step': k,
@@ -210,6 +211,7 @@ class NonSingularMatrix:
             
             # Swap columns to bring the largest element to position (k, k) if needed.
             if max_col != k:
+                # print(f"Swapping columns {k} and {max_col} {self.swap_count}")
                 self.swap_count += 1
                 self.swap_details.append({
                     'step': k,

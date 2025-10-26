@@ -14,7 +14,6 @@ class TestType(Enum):
     ANTI_DIAGONAL_DECREASING = "anti_diagonal_decreasing"
     X_PATTERN_DIAGONALLY_DOMINANT = "x_pattern_diagonally_dominant"
     X_PATTERN_ANTI_DIAGONALLY_DOMINANT = "x_pattern_anti_diagonally_dominant"
-    X_PATTERN_DECREASING = "x_pattern_decreasing"
     UNIT_LOWER_TRIANGULAR = "unit_lower_triangular"
     LOWER_TRIANGULAR = "lower_triangular"
     TRIDIAGONAL = "tridiagonal"
@@ -24,8 +23,9 @@ class TestType(Enum):
 
 
 class TestExecutor:
-    SIZE_RANGE = [10, 11]
+    SIZE_RANGE = [10, 101]
     SIZE_STEP = 10
+    TESTS_PER_SIZE = 5
 
     def __init__(self):
         self.matrix_generator = MatrixGenerator()
@@ -53,7 +53,7 @@ class TestExecutor:
 
         # Generate the matrix depending on the test type.
         if test_type == TestType.NON_SINGULAR:       
-            np_matrix = self.matrix_generator.generate_non_singular_square(size)
+            np_matrix = self.matrix_generator.generate_non_singular_square(size, well_conditioned=True)
         elif test_type == TestType.DIAGONAL_INCREASING:
             np_matrix = self.matrix_generator.generate_diagonal_increasing_matrix(size)
         elif test_type == TestType.DIAGONAL_DECREASING:
