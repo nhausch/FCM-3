@@ -17,9 +17,12 @@ class FactorizationTest:
         result_data["condition_number"] = []
         result_data["swap_count"] = []
 
-        print("Input matrix:")
-        with np.printoptions(precision=2, suppress=True, linewidth=100):
-            print(input_data["matrices"][0].np_matrix)
+        # Print input matrix only for the first test to reduce verbosity
+        if not hasattr(self, '_first_test'):
+            print("Input matrix:")
+            with np.printoptions(precision=2, suppress=True, linewidth=100):
+                print(input_data["matrices"][0].np_matrix)
+            self._first_test = True
 
         # Process each input matrix and store the results.
         # Each matrix contains a variable determining the type of factorization to perform.
@@ -28,9 +31,12 @@ class FactorizationTest:
                 # Factor the matrix, solve for x, and remultiply the matrix.
                 matrix.factorize()
                 x = matrix.solve(b)
-                print("Factorized matrix:")
-                with np.printoptions(precision=2, suppress=True, linewidth=100):
-                    print(matrix.np_matrix)
+                # Print factorized matrix only for the first test to reduce verbosity
+                if not hasattr(self, '_first_factorized'):
+                    print("Factorized matrix:")
+                    with np.printoptions(precision=2, suppress=True, linewidth=100):
+                        print(matrix.np_matrix)
+                    self._first_factorized = True
                 matrix.remultiply()
 
                 # Compute the relative accuracy of the factorization and the residual.

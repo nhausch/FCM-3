@@ -1,4 +1,5 @@
 from enum import Enum
+import numpy as np
 
 from test_executor.data_types.non_singular_matrix import NonSingularMatrix, FactorizationType
 from test_executor.matrix_generator.matrix_generator import MatrixGenerator
@@ -37,11 +38,66 @@ class TestExecutor:
 
         # Execute the test for each size in the range.
         for size in range(self.SIZE_RANGE[0], self.SIZE_RANGE[1], self.SIZE_STEP):
-            input_data = self.get_input_data(test_type, size)
-            result_data = self.factorization_test.run(input_data)
-            results.append(result_data)
+            # Generate 5 different matrices for this size
+            individual_results = []
+            for test_num in range(self.TESTS_PER_SIZE):
+                input_data = self.get_input_data(test_type, size)
+                result_data = self.factorization_test.run(input_data)
+                individual_results.append(result_data)
+            
+            # Average the 5 results into a single result
+            averaged_result = self.average_results(individual_results)
+            results.append(averaged_result)
 
-        # self.result_plotter.plot(results)
+        self.result_plotter.plot(results)
+
+    def average_results(self, individual_results):
+        """
+        Average multiple result dictionaries into a single result dictionary.
+        Each result contains lists of 3 values (one for each factorization type).
+        """
+        
+        if not individual_results:
+            return None
+        
+        # Initialize the averaged result with the first result's structure
+        averaged_result = {
+            "size": individual_results[0]["size"],
+            "b": individual_results[0]["b"],  # Use the first b vector
+            "relative_factorization_accuracy": [],
+            "residual": [],
+            "growth_factor": [],
+            "condition_number": [],
+            "swap_count": []
+        }
+        
+        # For each factorization type (3 types), average across all tests
+        for i in range(3):  # No pivoting, Partial pivoting, Full pivoting
+            # Collect values for this factorization type across all tests
+            relative_acc_values = [result["relative_factorization_accuracy"][i] for result in individual_results]
+            residual_values = [result["residual"][i] for result in individual_results]
+            growth_factor_values = [result["growth_factor"][i] for result in individual_results]
+            condition_number_values = [result["condition_number"][i] for result in individual_results]
+            swap_count_values = [result["swap_count"][i] for result in individual_results]
+            
+            # Average the values, handling NaN values
+            averaged_result["relative_factorization_accuracy"].append(
+                np.nanmean(relative_acc_values) if not all(np.isnan(relative_acc_values)) else np.nan
+            )
+            averaged_result["residual"].append(
+                np.nanmean(residual_values) if not all(np.isnan(residual_values)) else np.nan
+            )
+            averaged_result["growth_factor"].append(
+                np.nanmean(growth_factor_values) if not all(np.isnan(growth_factor_values)) else np.nan
+            )
+            averaged_result["condition_number"].append(
+                np.nanmean(condition_number_values) if not all(np.isnan(condition_number_values)) else np.nan
+            )
+            averaged_result["swap_count"].append(
+                np.nanmean(swap_count_values) if not all(np.isnan(swap_count_values)) else np.nan
+            )
+        
+        return averaged_result
 
     # Generate the input data for the test.
     # Three copies of the matrix are added, one for each factorization type.
