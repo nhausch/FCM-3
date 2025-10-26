@@ -2,7 +2,7 @@ import numpy as np
 
 class FactorizationTest:
     def __init__(self):
-        pass
+        self.first_test = True
 
     def run(self, input_data):
 
@@ -17,12 +17,11 @@ class FactorizationTest:
         result_data["condition_number"] = []
         result_data["swap_count"] = []
 
-        # Print input matrix only for the first test to reduce verbosity
-        if not hasattr(self, '_first_test'):
+        # Print input matrix only for the first test.
+        if self.first_test:
             print("Input matrix:")
             with np.printoptions(precision=2, suppress=True, linewidth=100):
                 print(input_data["matrices"][0].np_matrix)
-            self._first_test = True
 
         # Process each input matrix and store the results.
         # Each matrix contains a variable determining the type of factorization to perform.
@@ -31,12 +30,13 @@ class FactorizationTest:
                 # Factor the matrix, solve for x, and remultiply the matrix.
                 matrix.factorize()
                 x = matrix.solve(b)
-                # Print factorized matrix only for the first test to reduce verbosity
-                if not hasattr(self, '_first_factorized'):
+    
+                # Print factorized matrix only for the first test.
+                if self.first_test:
                     print("Factorized matrix:")
                     with np.printoptions(precision=2, suppress=True, linewidth=100):
                         print(matrix.np_matrix)
-                    self._first_factorized = True
+
                 matrix.remultiply()
 
                 # Compute the relative accuracy of the factorization and the residual.
@@ -62,6 +62,8 @@ class FactorizationTest:
                 result_data["swap_count"].append(0)
 
         self.print_result(result_data)
+        if self.first_test:
+            self.first_test = False
         return result_data
 
     def print_result(self, result_data):

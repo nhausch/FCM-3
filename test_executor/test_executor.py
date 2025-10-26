@@ -51,19 +51,14 @@ class TestExecutor:
 
         self.result_plotter.plot(results)
 
-    def average_results(self, individual_results):
-        """
-        Average multiple result dictionaries into a single result dictionary.
-        Each result contains lists of 3 values (one for each factorization type).
-        """
-        
+    def average_results(self, individual_results):        
         if not individual_results:
             return None
         
-        # Initialize the averaged result with the first result's structure
+        # Initialize the averaged result with the first result's structure.
         averaged_result = {
             "size": individual_results[0]["size"],
-            "b": individual_results[0]["b"],  # Use the first b vector
+            "b": individual_results[0]["b"],  # Use the first b vector.
             "relative_factorization_accuracy": [],
             "residual": [],
             "growth_factor": [],
@@ -71,16 +66,17 @@ class TestExecutor:
             "swap_count": []
         }
         
-        # For each factorization type (3 types), average across all tests
-        for i in range(3):  # No pivoting, Partial pivoting, Full pivoting
-            # Collect values for this factorization type across all tests
+        # For each factorization type (3 types), average across all tests.
+        for i in range(3):  # No pivoting, Partial pivoting, Full pivoting.
+
+            # Collect values for this factorization type across all tests.
             relative_acc_values = [result["relative_factorization_accuracy"][i] for result in individual_results]
             residual_values = [result["residual"][i] for result in individual_results]
             growth_factor_values = [result["growth_factor"][i] for result in individual_results]
             condition_number_values = [result["condition_number"][i] for result in individual_results]
             swap_count_values = [result["swap_count"][i] for result in individual_results]
             
-            # Average the values, handling NaN values
+            # Average the values, handling NaN values.
             averaged_result["relative_factorization_accuracy"].append(
                 np.nanmean(relative_acc_values) if not all(np.isnan(relative_acc_values)) else np.nan
             )

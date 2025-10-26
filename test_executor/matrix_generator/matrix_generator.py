@@ -16,7 +16,7 @@ class MatrixGenerator:
             'high': 5.0,
         }
         self.round_to_int = False
-        self.use_single_precision = True
+        self.use_single_precision = False
 
     def generate_non_singular_unit_lower_triangular(self, size, well_conditioned: bool = True):
         matrix = np.zeros((size, size))
